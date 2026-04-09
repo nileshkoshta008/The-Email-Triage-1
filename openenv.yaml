@@ -1,0 +1,72 @@
+name: email-triage
+description: An AI agent environment for triaging emails - categorize, prioritize, and archive emails efficiently.
+environment_class: EmailTriageEnv
+version: 1.0.0
+
+api_version: 1.0.0
+
+tasks:
+  - task_id: categorize_inbox
+    description: Categorize all inbox emails into work, personal, or spam
+    difficulty: easy
+    max_score: 1.0
+  
+  - task_id: prioritize_urgent
+    description: Identify and prioritize urgent emails (score 1-2 priority)
+    difficulty: medium
+    max_score: 1.0
+  
+  - task_id: archive_clutter
+    description: Archive emails older than 7 days that are not urgent
+    difficulty: easy
+    max_score: 1.0
+
+observation:
+  type: object
+  fields:
+    inbox_count:
+      type: integer
+      description: Total number of emails in inbox
+    emails:
+      type: array
+      description: List of email objects (id, sender, subject, body, timestamp, category, priority)
+    current_email_index:
+      type: integer
+      description: Index of the currently selected email
+    session_score:
+      type: float
+      description: Cumulative score for this session
+
+action:
+  type: object
+  fields:
+    action_type:
+      type: string
+      enum: [categorize, prioritize, archive]
+      description: Type of action to perform
+    email_id:
+      type: integer
+      description: ID of the email to act upon
+    category:
+      type: string
+      enum: [work, personal, spam, inbox]
+      required: false
+      description: Category for categorize action
+    priority:
+      type: integer
+      minimum: 1
+      maximum: 5
+      required: false
+      description: Priority level for prioritize action (1=highest)
+
+runtime:
+  python_version: "3.10"
+  framework: openenv
+  dependencies:
+    - pydantic>=2.0.0
+    - openenv>=0.1.0
+
+deployment:
+  type: huggingface_space
+  hardware: t4-small
+  requires_gpu: false
